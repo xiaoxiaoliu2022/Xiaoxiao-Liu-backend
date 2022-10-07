@@ -1,5 +1,5 @@
 # Xiaoxiao-Liu-backend
-I successfully created the backend repo with all the requirements completed and installed MongoDB
+I successfully created the backend repo with all the requirements completed and installed MongoDB.
 
 
 1. Xiaoxiao Liu-backend VSC directory structure
