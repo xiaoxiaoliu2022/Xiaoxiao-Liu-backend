@@ -11,6 +11,7 @@ async function main() {
         process.env.MOVIEREVIEWS_DB_URI
     )
     const port = process.env.PORT || 8000;
+    // will get env varible from both 
     try {
         // connect to MongoDB server
         await client.connect();

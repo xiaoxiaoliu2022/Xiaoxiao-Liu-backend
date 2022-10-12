@@ -1,44 +1,50 @@
 import mongodb from "mongodb";
-const ObjectId = mongodb.ObjectId
+const ObjectId = mongodb.ObjectId;
 
 let movies;
-export default class MoviesDAO {
+
+export default class MoviesDao {
     static async injectDB(conn) {
         if (movies) {
             return;
         }
         try {
             movies = await conn.db(process.env.MOVIEREVIEWS_NS).collection('movies');
+
         }
         catch (e) {
-            console.error(`Unable to connect in MoviesDAO: ${e}`);
+            console.error(`unable to connect in MoviesDao: ${e}`);
         }
     }
-    
+
     static async getMovies({
         filters = null,
         page = 0,
         moviesPerPage = 20,
-    } = {}) {//empty object is default parameter in case arg is undefined
+    } = {}) {
         let query;
         if (filters) {
             if ("title" in filters) {
                 query = { $text: { $search: filters['title'] } };
+
             } else if ("rated" in filters) {
                 query = { "rated": { $eq: filters['rated'] } }
             }
         }
+
         let cursor;
         try {
-            cursor = await movies.find(query).limit(moviesPerPage).skip(moviesPerPage * page)
+            cursor = await movies.find(query).limit(moviesPerPage).skip(moviesPerPage * page);
             const moviesList = await cursor.toArray();
             const totalNumMovies = await movies.countDocuments(query);
             return { moviesList, totalNumMovies };
+
         } catch (e) {
             console.error(`Unable to issue find command, ${e}`);
             return { moviesList: [], totalNumMovies: 0 };
         }
     }
+
     static async getRatings() {
         let ratings = [];
         try {
@@ -50,6 +56,7 @@ export default class MoviesDAO {
         }
 
     }
+
     static async getMovieById(id) {
         try {
             return await movies.aggregate([
@@ -61,16 +68,18 @@ export default class MoviesDAO {
                 {
                     $lookup: {
                         from: 'reviews',
-                        localField: '_id',
-                        foreighField: 'movie_id',
+                        localField: `_id`,
+                        foreignField: 'movie_id',
                         as: 'reviews',
                     }
                 }
+
             ]).next();
         } catch (e) {
-            console.error(`Something went wrong in getMovieById:${e}`);
+            console.error(`Something went wrong in GetMovieById: ${e}`);
             throw e;
         }
 
     }
+
 }
