@@ -1,4 +1,4 @@
-import ReviewsDAO from '../dao/reviewsDAO.js';//one or two dots
+import ReviewsDAO from '../dao/reviewsDAO.js';
 export default class ReviewsController {
     static async apiPostReview(req, res, next) {
         try {
@@ -10,7 +10,7 @@ export default class ReviewsController {
             }
             const date = new Date();
 
-            const reviewResponse = await ReviewsDAO.addReviews(
+            const reviewResponse = await ReviewsDAO.addReview(
                 movieId,
                 userInfo,
                 review,
@@ -29,9 +29,66 @@ export default class ReviewsController {
 
     }
     static async apiUpdateReview(req, res, next) {
+        try {
+            const userId = req.body.user_id;
+            const reviewId = req.body.review_id;
+            const review = req.body.review;
+            const date = new Date();
+            const updateReview = await ReviewsDAO.updateReview(
+                reviewId,
+                userId,
+                review,
+                date
 
+            );
+
+            var { error } = updateReview;
+            console.log(error);
+            if (error) {
+                res.status(500).json({ error: "Unable to update review." });
+            } else if (updateReview.modifiedCount <= 0) {
+                res.json({ error: "Can't find a match review to update" });
+
+            } else if (updateReview.modifiedCount > 1) {
+                res.json({ error: "More than one match review are found" });
+            } else {
+                res.json({ status: "success" });
+            }
+
+        } catch (e) {
+            res.status(500).json({ error: e.message });
+        }
     }
-    static async apiDeleteReview(req, res, next) {
 
+    static async apiDeleteReview(req, res, next) {
+        try {
+            const userId = req.body.user_id;
+            const reviewId = req.body.review_id;
+            const review = req.body.review;
+            const date = new Date();
+            const deleteReview = await ReviewsDAO.deleteReview(
+                reviewId,
+                userId,
+                review,
+                date
+
+            );
+
+            var { error } = deleteReview;
+
+            if (error) {
+                res.status(500).json({ error: "Unable to delete review." });
+            } else if (deleteReview.deletedCount <= 0) {
+                res.json({ error: "Can't match review to delete" });
+
+            } else if (deleteReview.deletedCount > 1){
+                res.json({ error: "More than one match review are found." });
+            }else {
+                res.json({ status: "success" });
+            }
+
+        } catch (e) {
+            res.status(500).json({ error: e.message });
+        }
     }
 }
